@@ -30,7 +30,6 @@ module Simpler
       route = @router.route_for(env)
       controller = route.controller.new(env)
       action = route.action
-
       make_response(controller, action)
     end
 

@@ -33,21 +33,42 @@ module Simpler
     end
 
     def write_response
-      body = render_body
 
+      @request.env['simpler.type'] ||= :html
+
+      body = send("render_#{@request.env['simpler.type']}")
       @response.write(body)
     end
 
-    def render_body
+    def render_plain
+      @request.env['simpler.template']
+    end
+
+    def render_html
       View.new(@request.env).render(binding)
     end
 
     def params
-      @request.params
+      @request.env['simpler.params']
+    end
+
+    def status(status)
+      @response.status = status
+    end
+
+    def header(key, value)
+      @response[key] = value
     end
 
     def render(template)
-      @request.env['simpler.template'] = template
+      if template.is_a?(Hash) && template.key?(:plain)
+        @response['Content-Type'] = 'text/plain'
+        @request.env['simpler.template'] = template[:plain]
+        @request.env['simpler.type'] = :plain
+      else
+        @request.env['simpler.template'] = template
+        @request.env['simpler.type'] = :html
+      end
     end
 
   end

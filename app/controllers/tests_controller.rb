@@ -8,4 +8,9 @@ class TestsController < Simpler::Controller
 
   end
 
+  def show
+    status 201
+    render plain: "Plain text response params id: #{params[:id]}"
+  end
+
 end
