@@ -1,4 +1,5 @@
-require_relative 'view'
+require_relative 'view_plain'
+require_relative 'view_html'
 
 module Simpler
   class Controller
@@ -36,16 +37,16 @@ module Simpler
 
       @request.env['simpler.type'] ||= :html
 
-      body = send("render_#{@request.env['simpler.type']}")
+      body = render_body
       @response.write(body)
     end
 
-    def render_plain
-      @request.env['simpler.template']
-    end
-
-    def render_html
-      View.new(@request.env).render(binding)
+    def render_body
+      if @request.env['simpler.type'] == :html
+        ViewHtml.new(@request.env).render(binding)
+      else
+        ViewPlain.new(@request.env).render(binding)
+      end
     end
 
     def params
