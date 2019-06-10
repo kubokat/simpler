@@ -1,4 +1,6 @@
-require_relative 'view'
+require_relative 'view_base'
+require_relative 'view_plain'
+require_relative 'view_html'
 
 module Simpler
   class Controller
@@ -33,21 +35,36 @@ module Simpler
     end
 
     def write_response
-      body = render_body
 
+      @request.env['simpler.response_type'] ||= :html
+
+      body = render_body
       @response.write(body)
     end
 
     def render_body
-      View.new(@request.env).render(binding)
+      ViewBase.new(@request.env).render(binding)
     end
 
     def params
-      @request.params
+      @request.env
+    end
+
+    def status(status)
+      @response.status = status
+    end
+
+    def header(key, value)
+      @response[key] = value
     end
 
     def render(template)
-      @request.env['simpler.template'] = template
+      if template.is_a?(Hash) && template.key?(:plain)
+        @request.env['simpler.template'] = template[:plain]
+        @request.env['simpler.response_type'] = :plain
+      else
+        @request.env['simpler.template'] = template
+      end
     end
 
   end
