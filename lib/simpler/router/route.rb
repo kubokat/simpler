@@ -9,6 +9,7 @@ module Simpler
         @path = path
         @controller = controller
         @action = action
+        @params = {}
       end
 
       def match?(method, path)
@@ -18,27 +19,22 @@ module Simpler
       private
 
       def params_parse(path)
+        router_path = parts(@path)
+        request_path = parts(path)
 
-        @params = {}
+        return false if router_path.size != request_path.size
 
-        until path == @path
-
-          orginal_path_segments = path.split('/')
-          path_segments = @path.split('/')
-
-          if orginal_path_segments.size == path_segments.size
-            param = path_segments.last.match('^:(\D+)')
-
-            if param
-              @params[param[1].to_sym] = orginal_path_segments.last
-              return true
-            end
-          end
-
-          return false
+        router_path.each_with_index do |param, value|
+          @params[param.sub(':', '')] = request_path[value] if param?(param)
         end
+      end
 
-        true
+      def param?(param)
+        param[0] == ':'
+      end
+
+      def parts(path)
+        path.split('/').reject!(&:empty?)
       end
 
     end

@@ -1,6 +1,6 @@
 require 'erb'
 
-class ViewHtml < ViewPlain
+class ViewHtml < ViewBase
 
   VIEW_BASE_PATH = 'app/views'.freeze
 

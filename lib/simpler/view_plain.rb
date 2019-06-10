@@ -1,11 +1,6 @@
-class ViewPlain
-
-  def initialize(env)
-    @env = env
-  end
-
-  def render(binding)
+class ViewPlain < ViewBase
+  def render
+    @env['Content-Type'] = 'text/plain'
     @env['simpler.template']
   end
-
 end

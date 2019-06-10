@@ -1,3 +1,4 @@
+require_relative 'view_base'
 require_relative 'view_plain'
 require_relative 'view_html'
 
@@ -35,22 +36,18 @@ module Simpler
 
     def write_response
 
-      @request.env['simpler.type'] ||= :html
+      @request.env['simpler.response_type'] ||= :html
 
       body = render_body
       @response.write(body)
     end
 
     def render_body
-      if @request.env['simpler.type'] == :html
-        ViewHtml.new(@request.env).render(binding)
-      else
-        ViewPlain.new(@request.env).render(binding)
-      end
+      ViewBase.new(@request.env).render(binding)
     end
 
     def params
-      @request.env['simpler.params']
+      @request.env
     end
 
     def status(status)
@@ -63,12 +60,10 @@ module Simpler
 
     def render(template)
       if template.is_a?(Hash) && template.key?(:plain)
-        @response['Content-Type'] = 'text/plain'
         @request.env['simpler.template'] = template[:plain]
-        @request.env['simpler.type'] = :plain
+        @request.env['simpler.response_type'] = :plain
       else
         @request.env['simpler.template'] = template
-        @request.env['simpler.type'] = :html
       end
     end
 
